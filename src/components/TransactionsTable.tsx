@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
+import { Tooltip } from 'react-tooltip';
 
 interface Transaction {
   collect_id: string;
@@ -18,19 +19,33 @@ interface TransactionsTableProps {
 }
 
 export default function TransactionsTable({ transactions, isLoading, error }: TransactionsTableProps) {
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' }>({
+    key: 'collect_id',
+    direction: 'desc'
+  });
 
   const sortedTransactions = [...transactions].sort((a, b) => {
-    if (!sortConfig) return 0;
     const { key, direction } = sortConfig;
-    if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
-    if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
+    
+    // Handle numeric values differently
+    if (key === 'order_amount' || key === 'transaction_amount') {
+      return direction === 'asc' 
+        ? a[key] - b[key]
+        : b[key] - a[key];
+    }
+    
+    // Handle string values
+    const aValue = String(a[key]).toLowerCase();
+    const bValue = String(b[key]).toLowerCase();
+    
+    if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+    if (aValue > bValue) return direction === 'asc' ? 1 : -1;
     return 0;
   });
 
   const requestSort = (key: keyof Transaction) => {
     let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
     }
     setSortConfig({ key, direction });
@@ -75,29 +90,35 @@ export default function TransactionsTable({ transactions, isLoading, error }: Tr
     );
   }
 
+  const columns = [
+    { key: 'collect_id', label: 'Collect ID', width: 'w-[12%] min-w-[120px]', tooltip: 'Click to sort by Collect ID' },
+    { key: 'school_id', label: 'School ID', width: 'w-[12%] min-w-[120px]', tooltip: 'Click to sort by School ID' },
+    { key: 'gateway', label: 'Gateway', width: 'w-[12%] min-w-[120px]', tooltip: 'Click to sort by Payment Gateway' },
+    { key: 'order_amount', label: 'Order Amount', width: 'w-[16%] min-w-[150px]', tooltip: 'Click to sort by Order Amount' },
+    { key: 'transaction_amount', label: 'Transaction Amount', width: 'w-[16%] min-w-[150px]', tooltip: 'Click to sort by Transaction Amount' },
+    { key: 'status', label: 'Status', width: 'w-[12%] min-w-[100px]', tooltip: 'Click to sort by Status' },
+    { key: 'custom_order_id', label: 'Custom Order ID', width: 'w-[20%] min-w-[200px]', tooltip: 'Click to sort by Custom Order ID' },
+  ];
+
   return (
     <div className="w-full overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-800/50">
           <tr>
-            {[
-              { key: 'collect_id', label: 'Collect ID', width: 'w-[12%] min-w-[120px]' },
-              { key: 'school_id', label: 'School ID', width: 'w-[12%] min-w-[120px]' },
-              { key: 'gateway', label: 'Gateway', width: 'w-[12%] min-w-[120px]' },
-              { key: 'order_amount', label: 'Order Amount', width: 'w-[16%] min-w-[150px]' },
-              { key: 'transaction_amount', label: 'Transaction Amount', width: 'w-[16%] min-w-[150px]' },
-              { key: 'status', label: 'Status', width: 'w-[12%] min-w-[100px]' },
-              { key: 'custom_order_id', label: 'Custom Order ID', width: 'w-[20%] min-w-[200px]' },
-            ].map(({ key, label, width }) => (
+            {columns.map(({ key, label, width, tooltip }) => (
               <th
                 key={key}
                 scope="col"
-                className={`${width} px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors duration-300`}
+                data-tooltip-id={`sort-${key}`}
+                data-tooltip-content={tooltip}
+                className={`${width} px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors duration-300 ${
+                  sortConfig.key === key ? 'bg-gray-100 dark:bg-gray-700/50' : ''
+                }`}
                 onClick={() => requestSort(key as keyof Transaction)}
               >
                 <div className="flex items-center space-x-1">
                   <span>{label}</span>
-                  {sortConfig?.key === key && (
+                  {sortConfig.key === key && (
                     sortConfig.direction === 'asc' ? (
                       <ArrowUpIcon className="h-2.5 w-2.5" />
                     ) : (
@@ -105,6 +126,7 @@ export default function TransactionsTable({ transactions, isLoading, error }: Tr
                     )
                   )}
                 </div>
+                <Tooltip id={`sort-${key}`} place="top" />
               </th>
             ))}
           </tr>
