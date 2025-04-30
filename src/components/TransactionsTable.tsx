@@ -42,7 +42,7 @@ export const TransactionsTable = () => {
   };
 
   const { sendMessage } = useWebSocket(
-    'wss://your-websocket-server.com',
+    import.meta.env.VITE_WS_URL,
     handleTransactionUpdate
   );
 
@@ -124,12 +124,14 @@ export const TransactionsTable = () => {
 
   return (
     <div className="relative">
-      <div className="absolute top-2 right-2 flex items-center space-x-2">
-        <div className="flex items-center">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
-          <span className="text-sm text-gray-600">Real-time updates active</span>
+      {import.meta.env.VITE_WS_URL && (
+        <div className="absolute top-2 right-2 flex items-center space-x-2">
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
+            <span className="text-sm text-gray-600">Real-time updates active</span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
