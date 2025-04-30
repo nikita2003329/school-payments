@@ -49,8 +49,8 @@ A modern, responsive dashboard for managing school payment transactions with rea
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/nikitasairam/school-payments.git
-   cd school-payments/frontend
+   git clone https://github.com/nikita2003329/school-payments-frontend.git
+   cd school-payments-frontend
    ```
 
 2. Install dependencies:
