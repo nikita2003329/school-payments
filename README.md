@@ -335,6 +335,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Screenshots
 
 ### Current Development Preview
-![Current Preview](screenshots/Screenshot 2025-04-30 at 3.49.22 PM.png)
+![Current Preview](screenshots/app-preview.png)
 
 *Note: The current layout is being optimized for better responsiveness and full browser window display. Additional screenshots showing the improved layout will be added as development progresses.*
