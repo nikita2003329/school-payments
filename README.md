@@ -6,21 +6,34 @@ A modern, responsive dashboard for managing school payment transactions with rea
 
 - 📊 Transaction Management
   - View all transactions in a sortable table
-  - Filter transactions by status and school
+  - Filter transactions by status, school, and date range
   - Real-time updates
   - Detailed transaction information
+  - Multi-select filters for status and school IDs
+  - Date-wise transaction filtering
+  - URL-persisted filter states for shareable views
 
 - 🎨 Modern UI
   - Clean and intuitive interface
-  - Dark/Light mode support
-  - Responsive design
+  - Dark/Light mode support with system preference detection
+  - Responsive design for all devices
   - Smooth animations and transitions
+  - Interactive table with hover effects
+  - Loading skeletons for better UX
+
+- 📈 Data Visualization
+  - Transaction trends over time
+  - Payment statistics by school
+  - Status distribution charts
+  - Revenue analytics
+  - Real-time data updates
 
 - 🔒 Secure & Reliable
   - JWT authentication
   - Secure API endpoints
-  - Error handling
-  - Loading states
+  - Error handling with user-friendly messages
+  - Loading states with progress indicators
+  - Offline support with service workers
 
 ## Tech Stack
 
@@ -92,42 +105,78 @@ frontend/
 ### Transactions Page
 - Displays all transactions in a sortable table
   - Sort by date, amount, status, or school
-  - Pagination support
+  - Pagination support with customizable page size
   - Real-time updates
+  - Multi-column sorting
+  - Export to CSV/PDF
 - Advanced filtering capabilities
   - Filter by status (Success, Pending, Failed)
-  - Filter by school
+  - Filter by school (multi-select)
+  - Date range selection
   - Search across all fields
+  - URL-persisted filter states
+- Data visualization
+  - Transaction volume chart
+  - Status distribution pie chart
+  - Revenue trends
 - Dark/Light mode support
 - Responsive design for all devices
-- Export functionality (coming soon)
+- Export functionality
+  - CSV export with custom fields
+  - PDF reports with charts
+  - Scheduled report generation
 
 ### School Transactions Page
 - School-specific transaction view
 - Advanced filtering options
-  - Date range selection
-  - Status filters
-  - Amount range
+  - Date range selection with calendar
+  - Status filters with multi-select
+  - Amount range with slider
+  - Custom date presets (Today, This Week, This Month)
 - Data visualization
-  - Transaction trends
-  - Payment statistics
+  - Transaction trends with interactive charts
+  - Payment statistics with drill-down capability
+  - School performance metrics
 - Export functionality
-  - CSV export
-  - PDF reports
+  - CSV export with school-specific fields
+  - PDF reports with school branding
+  - Automated report scheduling
 
 ### Transaction Status Page
 - Detailed transaction information
-  - Transaction ID
-  - Payment details
-  - School information
-  - Timestamps
+  - Transaction ID with copy button
+  - Payment details with QR code
+  - School information with logo
+  - Timestamps with timezone support
 - Status tracking
-  - Real-time status updates
-  - Status history
+  - Real-time status updates with notifications
+  - Status history with timeline view
+  - Error tracking and resolution
 - Receipt generation
-  - Printable receipts
-  - Email receipt option
+  - Printable receipts with school branding
+  - Email receipt option with templates
+  - SMS notification option
 - Error handling and retry options
+  - Automatic retry for failed payments
+  - Manual retry with reason tracking
+  - Error resolution workflow
+
+### Analytics Dashboard
+- Overview metrics
+  - Total transactions
+  - Success rate
+  - Average transaction value
+  - Revenue trends
+- Interactive charts
+  - Transaction volume over time
+  - Payment method distribution
+  - School-wise performance
+  - Status distribution
+- Custom reports
+  - Date range selection
+  - School comparison
+  - Performance metrics
+  - Export options
 
 ### Authentication & Security
 - JWT-based authentication
@@ -136,6 +185,8 @@ frontend/
 - Password encryption
 - Rate limiting
 - CSRF protection
+- Two-factor authentication
+- Session timeout handling
 
 ### API Documentation
 
@@ -336,5 +387,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Current Development Preview
 ![Current Preview](screenshots/app_preview.png)
+
+### Analytics Dashboard
+![Analytics Dashboard](screenshots/analytics.png)
+
+### Transaction Details
+![Transaction Details](screenshots/transaction-details.png)
+
+### School Performance
+![School Performance](screenshots/school-performance.png)
 
 *Note: The current layout is being optimized for better responsiveness and full browser window display. Additional screenshots showing the improved layout will be added as development progresses.*
