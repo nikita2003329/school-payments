@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react';
-import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useWebSocket } from '../services/websocket';
 import { Tooltip } from 'react-tooltip';
-
-interface Transaction {
-  collect_id: string;
-  school_id: string;
-  gateway: string;
-  order_amount: number;
-  transaction_amount: number;
-  status: string;
-  custom_order_id: string;
-}
+import { format } from 'date-fns';
+import { formatCurrency } from '../utils/formatCurrency';
+import { getTransactions } from '../services/api';
+import { Transaction } from '../types/transaction';
+import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -18,11 +14,37 @@ interface TransactionsTableProps {
   error?: unknown;
 }
 
-export default function TransactionsTable({ transactions, isLoading, error }: TransactionsTableProps) {
+export const TransactionsTable = () => {
+  const queryClient = useQueryClient();
   const [sortConfig, setSortConfig] = useState<{ key: keyof Transaction; direction: 'asc' | 'desc' }>({
     key: 'collect_id',
     direction: 'desc'
   });
+
+  const { data: transactions, isLoading, error } = useQuery<Transaction[]>({
+    queryKey: ['transactions'],
+    queryFn: getTransactions,
+  });
+
+  const handleTransactionUpdate = (updatedTransaction: Transaction) => {
+    queryClient.setQueryData<Transaction[]>(['transactions'], (oldData) => {
+      if (!oldData) return [updatedTransaction];
+      
+      const index = oldData.findIndex(t => t.collect_id === updatedTransaction.collect_id);
+      if (index === -1) {
+        return [updatedTransaction, ...oldData];
+      }
+      
+      const newData = [...oldData];
+      newData[index] = updatedTransaction;
+      return newData;
+    });
+  };
+
+  const { sendMessage } = useWebSocket(
+    'wss://your-websocket-server.com',
+    handleTransactionUpdate
+  );
 
   const sortedTransactions = [...transactions].sort((a, b) => {
     const { key, direction } = sortConfig;
@@ -101,71 +123,85 @@ export default function TransactionsTable({ transactions, isLoading, error }: Tr
   ];
 
   return (
-    <div className="w-full overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead className="bg-gray-50 dark:bg-gray-800/50">
-          <tr>
-            {columns.map(({ key, label, width, tooltip }) => (
-              <th
-                key={key}
-                scope="col"
-                data-tooltip-id={`sort-${key}`}
-                data-tooltip-content={tooltip}
-                className={`${width} px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors duration-300 ${
-                  sortConfig.key === key ? 'bg-gray-100 dark:bg-gray-700/50' : ''
-                }`}
-                onClick={() => requestSort(key as keyof Transaction)}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>{label}</span>
-                  {sortConfig.key === key && (
-                    sortConfig.direction === 'asc' ? (
-                      <ArrowUpIcon className="h-2.5 w-2.5" />
-                    ) : (
-                      <ArrowDownIcon className="h-2.5 w-2.5" />
-                    )
-                  )}
-                </div>
-                <Tooltip id={`sort-${key}`} place="top" />
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white dark:bg-gray-800/50 divide-y divide-gray-200 dark:divide-gray-700">
-          {sortedTransactions.map((transaction, index) => (
-            <tr
-              key={transaction.collect_id}
-              className={`${
-                index % 2 === 0 ? 'bg-white dark:bg-gray-800/50' : 'bg-gray-50 dark:bg-gray-700/50'
-              } hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors duration-300`}
-            >
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                {transaction.collect_id}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                {transaction.school_id}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                {transaction.gateway}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                ₹{transaction.order_amount.toLocaleString()}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                ₹{transaction.transaction_amount.toLocaleString()}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(transaction.status)}`}>
-                  {transaction.status}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                {transaction.custom_order_id}
-              </td>
+    <div className="relative">
+      <div className="absolute top-2 right-2 flex items-center space-x-2">
+        <div className="flex items-center">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
+          <span className="text-sm text-gray-600">Real-time updates active</span>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50 dark:bg-gray-800/50">
+            <tr>
+              {columns.map(({ key, label, width, tooltip }) => (
+                <th
+                  key={key}
+                  scope="col"
+                  data-tooltip-id={`sort-${key}`}
+                  data-tooltip-content={tooltip}
+                  className={`${width} px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors duration-300 ${
+                    sortConfig.key === key ? 'bg-gray-100 dark:bg-gray-700/50' : ''
+                  }`}
+                  onClick={() => requestSort(key as keyof Transaction)}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>{label}</span>
+                    {sortConfig.key === key && (
+                      sortConfig.direction === 'asc' ? (
+                        <ArrowUpIcon className="h-2.5 w-2.5" />
+                      ) : (
+                        <ArrowDownIcon className="h-2.5 w-2.5" />
+                      )
+                    )}
+                  </div>
+                  <Tooltip id={`sort-${key}`} place="top" />
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white dark:bg-gray-800/50 divide-y divide-gray-200 dark:divide-gray-700">
+            {sortedTransactions.map((transaction, index) => (
+              <tr
+                key={transaction.collect_id}
+                className={`${
+                  index % 2 === 0 ? 'bg-white dark:bg-gray-800/50' : 'bg-gray-50 dark:bg-gray-700/50'
+                } hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors duration-300`}
+              >
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                  {transaction.collect_id}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                  {transaction.school_id}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                  {transaction.gateway}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                  ₹{transaction.order_amount.toLocaleString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                  ₹{transaction.transaction_amount.toLocaleString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(transaction.status)}`}>
+                    {transaction.status}
+                  </span>
+                  {transaction.payment_time && new Date(transaction.payment_time).getTime() > Date.now() - 30000 && (
+                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      New
+                    </span>
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                  {transaction.custom_order_id}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 } 
