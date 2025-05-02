@@ -13,6 +13,7 @@ async function bootstrap() {
     'https://job-kbx30ys34-nikitas-projects-b8e5934c.vercel.app', // Vercel frontend
     'https://job-7w6e02h6b-nikitas-projects-b8e5934c.vercel.app', // Vercel frontend
     'https://job-in5mpxuep-nikitas-projects-b8e5934c.vercel.app', // Latest Vercel frontend
+    'https://job-backend.onrender.com', // Render backend
   ];
 
   app.enableCors({
@@ -44,43 +45,24 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(process.env.PORT || 3000);
+  // Get port from environment variable or use default
+  const port = process.env.PORT || 3000;
+  console.log(`Starting server on port ${port}...`);
+  
+  try {
+    // Listen on all network interfaces
+    await app.listen(port, '0.0.0.0');
+    console.log(`Server is running on port ${port}`);
+    console.log(`API documentation available at http://0.0.0.0:${port}/api`);
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 }
 
-// For Vercel serverless deployment
-export default async function handler(req: any, res: any) {
-  const app = await NestFactory.create(AppModule);
-  
-  // Enable CORS for serverless function
-  const allowedOrigins = [
-    'http://localhost:5173', // Vite dev server
-    'https://job-kbx30ys34-nikitas-projects-b8e5934c.vercel.app', // Vercel frontend
-    'https://job-7w6e02h6b-nikitas-projects-b8e5934c.vercel.app', // Vercel frontend
-    'https://job-in5mpxuep-nikitas-projects-b8e5934c.vercel.app', // Latest Vercel frontend
-  ];
-
-  app.use(cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
-    credentials: true,
-  }));
-  
-  app.useGlobalPipes(new ValidationPipe());
-  app.setGlobalPrefix('api');
-  
-  await app.init();
-  const instance = app.getHttpAdapter().getInstance();
-  return instance(req, res);
-}
-
-// Start the application if not in serverless environment
-if (process.env.NODE_ENV !== 'production') {
+// Always bootstrap in production
+if (process.env.NODE_ENV === 'production') {
+  bootstrap();
+} else {
   bootstrap();
 }

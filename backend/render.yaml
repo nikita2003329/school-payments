@@ -2,13 +2,28 @@ services:
   - type: web
     name: job-backend
     env: node
-    buildCommand: npm install && npm run build
-    startCommand: npm run start:prod
+    region: oregon
+    plan: free
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm run start:prod
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 10000
       - key: MONGODB_URI
+        sync: false
+      - key: PG_KEY
+        sync: false
+      - key: API_KEY
+        sync: false
+      - key: SCHOOL_ID
         sync: false
       - key: JWT_SECRET
         sync: false
-    plan: free 
+      - key: RENDER
+        value: true
+    healthCheckPath: /api/health
+    autoDeploy: true
+    branch: main
+    numInstances: 1 
