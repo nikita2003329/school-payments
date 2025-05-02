@@ -13,6 +13,7 @@ async function bootstrap() {
     'https://job-kbx30ys34-nikitas-projects-b8e5934c.vercel.app', // Vercel frontend
     'https://job-7w6e02h6b-nikitas-projects-b8e5934c.vercel.app', // Vercel frontend
     'https://job-in5mpxuep-nikitas-projects-b8e5934c.vercel.app', // Latest Vercel frontend
+    'https://job-backend.onrender.com', // Render backend
   ];
 
   app.enableCors({
@@ -44,7 +45,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(process.env.PORT || 3000);
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 
 // For Vercel serverless deployment
