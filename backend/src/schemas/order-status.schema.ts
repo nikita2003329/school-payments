@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class OrderStatus extends Document {
-  @Prop({ required: true, ref: 'Order' })
-  collect_id: string;
+  @Prop({ type: Types.ObjectId, ref: 'Order', required: true })
+  collect_id: Types.ObjectId;
 
   @Prop({ required: true })
   order_amount: number;
@@ -12,16 +12,16 @@ export class OrderStatus extends Document {
   @Prop({ required: true })
   transaction_amount: number;
 
-  @Prop({ required: true })
+  @Prop()
   payment_mode: string;
 
-  @Prop({ required: true })
+  @Prop()
   payment_details: string;
 
-  @Prop({ required: true })
+  @Prop()
   bank_reference: string;
 
-  @Prop({ required: true })
+  @Prop()
   payment_message: string;
 
   @Prop({ required: true })
@@ -30,7 +30,7 @@ export class OrderStatus extends Document {
   @Prop()
   error_message: string;
 
-  @Prop({ required: true })
+  @Prop()
   payment_time: Date;
 }
 

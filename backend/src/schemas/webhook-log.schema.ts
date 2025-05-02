@@ -4,13 +4,10 @@ import { Document } from 'mongoose';
 @Schema({ timestamps: true })
 export class WebhookLog extends Document {
   @Prop({ required: true })
-  payload: any;
+  collection_id: string;
 
-  @Prop({ required: true })
-  status: number;
-
-  @Prop()
-  error: string;
+  @Prop({ required: true, type: Object })
+  payload: Record<string, any>;
 }
 
 export const WebhookLogSchema = SchemaFactory.createForClass(WebhookLog); 

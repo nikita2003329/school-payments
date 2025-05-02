@@ -15,6 +15,14 @@ export class PaymentService {
     private configService: ConfigService,
   ) {}
 
+  generateToken(payload: any): string {
+    const apiKey = this.configService.get<string>('PAYMENT_API_KEY');
+    if (!apiKey) {
+      throw new Error('PAYMENT_API_KEY is not configured');
+    }
+    return jwt.sign(payload, apiKey);
+  }
+
   async createPayment(createPaymentDto: any) {
     const order = new this.orderModel(createPaymentDto);
     await order.save();
@@ -26,7 +34,7 @@ export class PaymentService {
       order_amount: createPaymentDto.order_amount,
     };
 
-    const token = jwt.sign(payload, this.configService.get<string>('PAYMENT_API_KEY'));
+    const token = this.generateToken(payload);
 
     try {
       const response = await axios.post('https://api.payment-gateway.com/create-collect-request', {

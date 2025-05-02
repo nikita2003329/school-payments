@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Order extends Document {
@@ -10,12 +10,12 @@ export class Order extends Document {
   trustee_id: string;
 
   @Prop({
-    required: true,
     type: {
       name: String,
       id: String,
       email: String,
     },
+    required: true,
   })
   student_info: {
     name: string;
@@ -25,6 +25,18 @@ export class Order extends Document {
 
   @Prop({ required: true })
   gateway_name: string;
+
+  @Prop({ required: true })
+  order_amount: number;
+
+  @Prop({ required: true })
+  transaction_amount: number;
+
+  @Prop({ required: true })
+  status: string;
+
+  @Prop({ required: true })
+  custom_order_id: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order); 

@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: job-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        value: mongodb+srv://nikita003:pinky@nikita.yiwiecm.mongodb.net/
+      - key: PG_KEY
+        value: edvtest01
+      - key: API_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0cnVzdGVlSWQiOiI2NWIwZTU1MmRkMzE5NTBhOWI0MWM1YmEiLCJJbmRleE9mQXBpS2V5Ijo2LCJpYXQiOjE3MTE2MjIyNzAsImV4cCI6MTc0MzE3OTg3MH0.Rye77Dp59GGxwCmwWekJHRj6edXWJnff9finjMhxKuw
+      - key: SCHOOL_ID
+        value: 65b0e6293e9f76a9694d84b4
+      - key: JWT_SECRET
+        value: your-secure-jwt-secret-key-here
+    healthCheckPath: /api/health
+    autoDeploy: true
+    branch: main
+    numInstances: 1
+    disk:
+      name: tmp
+      mountPath: /tmp
+      sizeGB: 1
+    envVars:
+      - key: RENDER
+        value: true
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-XSS-Protection
+        value: 1; mode=block
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: /api/*
+      - type: rewrite
+        source: /*
+        destination: /index.html 

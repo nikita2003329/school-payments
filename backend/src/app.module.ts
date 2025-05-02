@@ -1,18 +1,27 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from './auth/auth.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PaymentModule } from './payment/payment.module';
-import { DatabaseModule } from './database/database.module';
+import { OrderModule } from './order/order.module';
+import { OrderStatusModule } from './order-status/order-status.module';
+import { WebhookLogModule } from './webhook-log/webhook-log.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    DatabaseModule,
-    AuthModule,
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI') || 'mongodb+srv://nikita003:pinky@nikita.yiwiecm.mongodb.net/',
+      }),
+      inject: [ConfigService],
+    }),
     PaymentModule,
+    OrderModule,
+    OrderStatusModule,
+    WebhookLogModule,
   ],
 })
 export class AppModule {}
