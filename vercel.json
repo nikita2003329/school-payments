@@ -7,6 +7,10 @@
   "public": true,
   "cleanUrls": true,
   "trailingSlash": false,
+  "env": {
+    "VITE_API_URL": "https://job-backend.onrender.com/api",
+    "VITE_WS_URL": "wss://job-backend.onrender.com"
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
