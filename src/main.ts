@@ -47,10 +47,17 @@ async function bootstrap() {
 
   // Get port from environment variable or use default
   const port = process.env.PORT || 3000;
+  console.log(`Starting server on port ${port}...`);
   
-  // Listen on all network interfaces
-  await app.listen(port, '0.0.0.0');
-  console.log(`Application is running on port ${port}`);
+  try {
+    // Listen on all network interfaces
+    await app.listen(port, '0.0.0.0');
+    console.log(`Server is running on port ${port}`);
+    console.log(`API documentation available at http://0.0.0.0:${port}/api`);
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 }
 
 // Always bootstrap in production
