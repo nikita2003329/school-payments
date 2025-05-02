@@ -1,5 +1,6 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "builds": [
     {
       "src": "src/main.ts",
@@ -16,6 +17,44 @@
         "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS"
       }
+=======
+  "framework": "vite",
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "regions": ["iad1"],
+  "public": true,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "env": {
+    "VITE_API_URL": "https://job-backend.onrender.com/api",
+    "VITE_WS_URL": "wss://job-backend.onrender.com"
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://job-backend.onrender.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "cache-control", "value": "public, max-age=31536000, immutable" }
+      ]
+>>>>>>> 492a2e0507c8a02772db9345f8fec9c5c3f613e4
     }
   ]
 } 
