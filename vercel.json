@@ -1,5 +1,23 @@
 {
   "version": 2,
+<<<<<<< HEAD
+  "builds": [
+    {
+      "src": "src/main.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "src/main.ts",
+      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+      }
+=======
   "framework": "vite",
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
@@ -36,6 +54,7 @@
       "headers": [
         { "key": "cache-control", "value": "public, max-age=31536000, immutable" }
       ]
+>>>>>>> 492a2e0507c8a02772db9345f8fec9c5c3f613e4
     }
   ]
 } 
